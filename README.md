@@ -143,7 +143,7 @@ src/
 │  │  ├─ controller.js
 │  │  ├─ index.js
 │  │  ├─ index.test.js
-│  │  ├─ model.js
+│  │  ├─ survey.js
 │  │  └─ model.test.js
 │  └─ index.js
 ├─ services/
@@ -162,7 +162,7 @@ src/
 
 Here is where the API endpoints are defined. Each API has its own folder.
 
-#### src/api/some-endpoint/model.js
+#### src/api/some-endpoint/survey.js
 
 It defines the Mongoose schema and model for the API endpoint. Any changes to the data model should be done here.
 
