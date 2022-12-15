@@ -1,8 +1,10 @@
 import orm from '../../../services/sequelize'
-import {DataTypes} from "sequelize"
+import {DataTypes, Model} from "sequelize"
 import Choice from "./choice";
 
-const Survey = orm.define('Survey', {
+class Survey extends Model {}
+
+Survey.init({
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -12,9 +14,13 @@ const Survey = orm.define('Survey', {
     type: DataTypes.TEXT,
     allowNull: true
   }
+}, {
+  sequelize: orm,
+  modelName: 'Survey'
 })
 
 Survey.hasMany(Choice)
+Choice.belongsTo(Survey)
 
 export default Survey
 

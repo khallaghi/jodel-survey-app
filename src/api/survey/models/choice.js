@@ -1,22 +1,26 @@
 import orm from '../../../services/sequelize'
-import {DataTypes} from "sequelize";
+import {DataTypes, Model} from "sequelize";
 import Survey from "./survey"
 
-const Choice = orm.define('Choice', {
+class Choice extends Model {}
+
+Choice.init({
   id: {
-    dataType: DataTypes.INTEGER,
+    type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true
   },
   text: {
-    dataType: DataTypes.TEXT
+    type: DataTypes.TEXT
   },
   selectedCount: {
-    dataType: DataTypes.INTEGER,
+    type: DataTypes.INTEGER,
     defaultValue: 0
   }
+}, {
+  sequelize: orm,
+  modelName: 'Choice'
 })
 
-Choice.belongsTo(Survey)
 
 export default Choice
