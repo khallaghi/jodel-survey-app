@@ -1,5 +1,4 @@
 import { Router } from 'express'
-import { middleware as query } from 'querymen'
 import { create, index, show, update, destroy } from './controller'
 
 const router = new Router()
@@ -24,7 +23,6 @@ router.post('/',
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
 router.get('/',
-  query(),
   index)
 
 /**

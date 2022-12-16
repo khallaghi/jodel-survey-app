@@ -1,26 +1,42 @@
 import Survey from './models/survey'
+import {success, notFound, internalError} from '../../services/response'
 
 export const create = async ({body}, res, next) => {
-  Survey.create(body)
-    .then(() => {
-      res.status(201).json({
-        "message": "Survey has been created"
-      })
-    })
-    .catch((error) => {
-      res.status(500).json({
-        "error": error.toString()
-      })
-    })
+  try {
+    const survey = await Survey.createSurvey(body);
+    success(res)(survey)
+  } catch (err) {
+    internalError(res, err)
+    next()
+  }
 }
 
-export const index = ({querymen: {query, select, cursor}}, res, next) => {
-  Survey.findAll()
-  res.status(200).json([])
+export const index = async (req, res, next) => {
+  let {limit, after, before, withResult} = req.query
+  limit = parseInt(limit)
+  try {
+    const surveys = await Survey.getAll(limit, after, before, withResult)
+    success(res)(surveys)
+  } catch (error) {
+    internalError(res, error)
+    next()
+  }
 }
 
-export const show = ({params}, res, next) =>
-  res.status(200).json({})
+export const show = async ({params, query}, res, next) => {
+  const {id} = params
+  const {withResult} = query
+  try {
+    const survey = await Survey.getById(id, withResult)
+    if (survey != null)
+      success(res)(survey)
+    else
+      notFound(res)
+  } catch (err) {
+    internalError(res, err)
+    next()
+  }
+}
 
 export const update = ({body, params}, res, next) =>
   res.status(200).json(body)
