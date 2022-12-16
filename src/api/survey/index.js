@@ -1,5 +1,5 @@
-import { Router } from 'express'
-import { create, index, show, update, destroy } from './controller'
+import {Router} from 'express'
+import {answer, create, destroy, index, show, update} from './controller'
 
 const router = new Router()
 
@@ -57,4 +57,14 @@ router.put('/:id',
 router.delete('/:id',
   destroy)
 
+
+/**
+ * @api {post} /survey/:id/answer answer to a survey
+ * @apiName AnswerSurvey
+ * @apiGroup Survey
+ * @apiSuccess (Success 200 ) 200 No Content.
+ * @apiError 404 Survey not found
+ */
+router.post('/:surveyId/answer',
+  answer)
 export default router

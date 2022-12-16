@@ -1,7 +1,24 @@
 import orm from '../../../services/sequelize'
-import {DataTypes, Model} from "sequelize";
+import {DataTypes, Model, Op} from "sequelize";
 
-class Choice extends Model {}
+
+class Choice extends Model {
+  static async incrementChoice(surveyId, localId) {
+    const selectedChoice = await Choice.findOne(
+      {
+        where: {
+          [Op.and]: [
+            {surveyId},
+            {localId}
+          ]
+        }
+      })
+    if (selectedChoice) {
+      await selectedChoice.increment('selectedCount', {by: 1})
+      return true
+    } else return false
+  }
+}
 
 Choice.init({
   id: {

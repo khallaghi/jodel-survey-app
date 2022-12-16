@@ -1,8 +1,5 @@
-export const success = (res, status) => (entity) => {
-  if (entity) {
-    res.status(status || 200).json(entity)
-  }
-  return null
+export const success = (res, entity, status) => {
+  res.status(status || 200).json(entity)
 }
 
 export const notFound = (res) => {
