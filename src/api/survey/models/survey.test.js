@@ -2,6 +2,48 @@ import Survey from './survey'
 import Choice from './choice'
 import orm from '../../../services/sequelize'
 
+
+const createSurveys = async () => {
+  const expectedSurveys =
+    [{
+      "question": "hello how are you buddy? ",
+      "choices": [
+        {"text": "very good bud", localId: 0},
+        {"text": "not bad bud", localId: 1},
+        {"text": "very very bad bud", localId: 2}
+      ]
+    }, {
+      "question": "hello how are you?",
+      "choices": [
+        {"text": "very good", localId: 0},
+        {"text": "not bad", localId: 1},
+        {"text": "very very bad", localId: 2}
+      ]
+    }, {
+      "question": "hello how are you for the third time?",
+      "choices": [
+        {"text": "very good", localId: 0},
+        {"text": "not bad", localId: 1},
+        {"text": "very very bad", localId: 2}
+      ]
+    }, {
+      "question": "hello how are you fourth time?",
+      "choices": [
+        {"text": "very good", localId: 0},
+        {"text": "not bad", localId: 1},
+        {"text": "very very bad", localId: 2}
+      ]
+    }
+    ]
+  await Survey.bulkCreate(expectedSurveys, {
+    include: {
+      association: Survey.choices,
+      as: 'choices'
+    }
+  })
+
+  return expectedSurveys
+}
 beforeAll(async () => {
   await orm.sync({force: true})
     .then(() => {
@@ -13,6 +55,8 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+  await Choice.destroy({truncate: true})
+  await Survey.destroy({truncate: true})
   await orm.close()
 })
 
@@ -60,7 +104,9 @@ describe('Check validity of query options', () => {
 })
 
 describe('Check CRUD operation on survey', () => {
+
   beforeEach(async () => {
+    await Choice.destroy({truncate: true})
     await Survey.destroy({truncate: true})
   })
 
@@ -108,39 +154,60 @@ describe('Check CRUD operation on survey', () => {
   })
 
   it('Check getting all surveys', async () => {
-    const expectedSurveys =
-      [{
-        "question": "hello how are you buddy? ",
-        "choices": [
-          {"text": "very good bud", localId: 0},
-          {"text": "not bad bud", localId: 1},
-          {"text": "very very bad bud", localId: 2}
-        ]
-      },{
-        "question": "hello how are you?",
-        "choices": [
-          {"text": "very good", localId: 0},
-          {"text": "not bad", localId: 1},
-          {"text": "very very bad", localId: 2}
-        ]
-      }]
-    await Survey.bulkCreate(expectedSurveys, {
-      include: {
-        association: Survey.choices,
-        as: 'choices'
-      }
-    })
+    const expectedSurveys = await createSurveys()
     const actualSurveys = await Survey.getAll()
-    console.log(actualSurveys)
-    console.log(expectedSurveys)
-    expect(actualSurveys.totalItems).toEqual(expectedSurveys.length)
-    expect(actualSurveys.surveys).toBeDefined()
-    expect(actualSurveys.surveys.length).toEqual(expectedSurveys.length)
-    for (let i=0; i < expectedSurveys.length; i++) {
-      expect(actualSurveys.surveys[i]).toMatchObject(expectedSurveys[i])
+
+    expect(actualSurveys.totalCount).toEqual(expectedSurveys.length)
+    expect(actualSurveys.edges).toBeDefined()
+    expect(actualSurveys.edges.length).toEqual(expectedSurveys.length)
+    expect(actualSurveys.pageInfo).toBeDefined()
+    for (let i = 0; i < expectedSurveys.length; i++) {
+      expect(actualSurveys.edges[i].node).toMatchObject(expectedSurveys[i])
     }
   })
+
+  it('Check getting list of surveys within page and size', async () => {
+    const expectedSurveys = await createSurveys()
+    const limit = 2
+    const actualSurveys = await Survey.getAll("false", limit)
+    expect(actualSurveys.totalCount).toEqual(expectedSurveys.length)
+    expect(actualSurveys.edges).toBeDefined()
+    expect(actualSurveys.edges.length).toEqual(limit)
+    expect(actualSurveys.pageInfo.hasNextPage).toBeTruthy()
+  })
+
+  it('Check getting list of surveys with after', async () => {
+    const expectedSurveys = await createSurveys()
+    const limit = 3
+    const surveys = await Survey.getAll("false", limit)
+    const after = surveys.edges[1].cursor
+    const actualSurveys = await Survey.getAll("false", limit, after)
+    expect(actualSurveys.edges[0].cursor).toEqual(surveys.edges[2].cursor)
+    expect(actualSurveys.edges.length).toEqual(2)
+  })
+
+  it('Check getting list of surveys with before', async () => {
+    const expectedSurveys = await createSurveys()
+    const limit = 2
+    const surveys = await Survey.getAll("false", limit)
+    const before = surveys.edges[1].cursor
+    const actualSurveys = await Survey.getAll("false", limit, undefined, before)
+    expect(actualSurveys.edges[0].cursor).toEqual(surveys.edges[0].cursor)
+    expect(actualSurveys.edges.length).toEqual(limit - 1)
+  })
+
+  it('Check getting list of surveys within page and size with results', async () => {
+    await createSurveys()
+
+
+    const actualSurveysWithResults = await Survey.getAll("true")
+    expect(actualSurveysWithResults.edges[0].node.choices[0].selectedCount).toBeDefined()
+
+    const actualSurveysWithoutResults = await Survey.getAll()
+    expect(actualSurveysWithoutResults.edges[0].node.choices[0].selectedCount).toBeUndefined()
+  })
 })
+
 
 
 

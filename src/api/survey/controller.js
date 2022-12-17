@@ -13,11 +13,10 @@ export const create = async ({body}, res, next) => {
 }
 
 export const index = async (req, res, next) => {
-  let {page, size, withResult} = req.query
-  size = parseInt(size)
-  page = parseInt(page)
+  let {limit, after, before, withResult} = req.query
+  limit = parseInt(limit)
   try {
-    const surveys = await Survey.getAll(page, size, withResult)
+    const surveys = await Survey.getAll(limit, after, before, withResult)
     success(res, surveys)
   } catch (error) {
     internalError(res, error)
