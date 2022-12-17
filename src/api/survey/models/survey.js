@@ -51,19 +51,6 @@ class Survey extends Model {
     })
     return choices
   }
-  //
-  // static getPagination(page, size) {
-  //   const limit = size ? +size : undefined
-  //   const offset = page ? page-- * limit : undefined
-  //   return {limit, offset}
-  // }
-  //
-  // static getPagingData(data, page, limit) {
-  //   const {count: totalItems, rows: surveys} = data
-  //   const currentPage = page ? +page : 1
-  //   const totalPages = limit ? Math.ceil(totalItems / limit) : 1
-  //   return {totalItems, surveys, totalPages, currentPage}
-  // }
 
   static async getAll(withResult, limit, after, before) {
     let queryOptions = Survey.getQueryOptions(undefined, withResult, {limit, after, before, distinct: true})
