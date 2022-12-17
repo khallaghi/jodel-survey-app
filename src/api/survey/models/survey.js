@@ -27,7 +27,6 @@ class Survey extends Model {
     if (where)
       Object.assign(queryOptions, {where})
 
-    console.log(queryOptions)
     return queryOptions
   }
 

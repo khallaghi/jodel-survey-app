@@ -28,7 +28,12 @@ const config = {
     apiRoot: process.env.API_ROOT || '',
     masterKey: requireProcessEnv('MASTER_KEY')
   },
-  test: { },
+  test: {
+    db: {
+      dialect: 'sqlite',
+      storage: path.join(__dirname, '../storage/database-test.sqlite')
+    }
+  },
   development: {
     db: {
       dialect: 'sqlite',

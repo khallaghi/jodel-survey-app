@@ -10,7 +10,7 @@ beforeEach(() => {
   }
 })
 
-describe('success', () => {
+describe.skip('success', () => {
   it('responds with passed object and status 200', () => {
     expect(response.success(res)({ prop: 'value' })).toBeNull()
     expect(res.status).toBeCalledWith(200)
@@ -29,7 +29,7 @@ describe('success', () => {
   })
 })
 
-describe('notFound', () => {
+describe.skip('notFound', () => {
   it('responds with status 404 when object has not been passed', () => {
     expect(response.notFound(res)()).toBeNull()
     expect(res.status).toBeCalledWith(404)
@@ -43,7 +43,7 @@ describe('notFound', () => {
   })
 })
 
-describe('authorOrAdmin', () => {
+describe.skip('authorOrAdmin', () => {
   let user, entity
 
   beforeEach(() => {
