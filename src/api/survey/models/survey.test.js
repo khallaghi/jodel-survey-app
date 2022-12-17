@@ -1,6 +1,6 @@
 import Survey from './survey'
 import Choice from './choice'
-import orm from '../../../services/sequelize'
+import {closeDb, initDb} from '../../../services/sequelize'
 
 
 const createSurveys = async () => {
@@ -45,19 +45,13 @@ const createSurveys = async () => {
   return expectedSurveys
 }
 beforeAll(async () => {
-  await orm.sync({force: true})
-    .then(() => {
-      console.log("Synced db")
-    })
-    .catch((err) => {
-      console.error("Failed to sync db", err)
-    })
+  await initDb()
 })
 
 afterAll(async () => {
   await Choice.destroy({truncate: true})
   await Survey.destroy({truncate: true})
-  await orm.close()
+  await closeDb()
 })
 
 describe('Check validity of query options', () => {
@@ -177,7 +171,7 @@ describe('Check CRUD operation on survey', () => {
   })
 
   it('Check getting list of surveys with after', async () => {
-    const expectedSurveys = await createSurveys()
+    await createSurveys()
     const limit = 3
     const surveys = await Survey.getAll("false", limit)
     const after = surveys.edges[1].cursor
@@ -187,7 +181,7 @@ describe('Check CRUD operation on survey', () => {
   })
 
   it('Check getting list of surveys with before', async () => {
-    const expectedSurveys = await createSurveys()
+    await createSurveys()
     const limit = 2
     const surveys = await Survey.getAll("false", limit)
     const before = surveys.edges[1].cursor

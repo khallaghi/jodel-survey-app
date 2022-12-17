@@ -1,4 +1,4 @@
-import orm from '../../../services/sequelize'
+import {orm} from '../../../services/sequelize'
 import {DataTypes, Model} from "sequelize"
 import Choice from "./choice";
 import {makePaginate} from "sequelize-cursor-pagination";

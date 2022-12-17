@@ -1,4 +1,4 @@
-import orm from '../../../services/sequelize'
+import {orm} from '../../../services/sequelize'
 import {DataTypes, Model, Op} from "sequelize";
 
 

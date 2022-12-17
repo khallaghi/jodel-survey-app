@@ -1,7 +1,7 @@
-import {env, port, ip, apiRoot} from './config'
+import {apiRoot, env, ip, port} from './config'
 import express from './services/express'
 import api from './api'
-import orm from './services/sequelize'
+import {initDb, orm} from './services/sequelize'
 
 const app = express(apiRoot, api)
 
@@ -19,12 +19,5 @@ orm.authenticate()
     console.error("Failed to connect to database", err)
   })
 
-orm.sync({force: true})
-  .then(() => {
-    console.log("Synced db")
-  })
-  .catch((err) => {
-    console.error("Failed to sync db", err)
-  })
-
+await initDb()
 export default app
