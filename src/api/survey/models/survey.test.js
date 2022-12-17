@@ -39,7 +39,7 @@ describe('Check validity of query options', () => {
     const actualAttrsWithResults = Survey.getQueryOptions(undefined, "true").include.attributes
     expect(actualAttrsWithResults.includes('selectedCount')).toBeTruthy()
     const actualAttrsWithoutResults = Survey.getQueryOptions(undefined, "false").include.attributes
-    expect(actualAttrsWithoutResults .includes('selectedCount')).toBeFalsy()
+    expect(actualAttrsWithoutResults.includes('selectedCount')).toBeFalsy()
   })
 
   it('Check functionality of other attributes', () => {
@@ -56,6 +56,88 @@ describe('Check validity of query options', () => {
     const expectedWhereClause = {id: 4}
     const actualQueryOption = Survey.getQueryOptions(expectedWhereClause)
     expect(actualQueryOption.where).toEqual(expectedWhereClause)
+  })
+})
+
+describe('Check CRUD operation on survey', () => {
+  beforeEach(async () => {
+    await Survey.destroy({truncate: true})
+  })
+
+  it('Check creation of a survey', async () => {
+    const expectedBody = {
+      "question": "hello how are you?",
+      "choices": [
+        {"text": "very good"},
+        {"text": "not bad"},
+        {"text": "very very bad"}
+      ]
+    }
+    const survey = await Survey.createSurvey(expectedBody)
+    const actualSurvey = await Survey.findOne({
+      where: {id: survey.id}, include: {model: Choice, as: 'choices', order: [['localId', 'DESC']]}
+    })
+    expect(actualSurvey.question).toEqual(expectedBody.question)
+    for (let i = 0; i < expectedBody.choices.length; i++) {
+      expect(actualSurvey.choices[i].text).toEqual(expectedBody.choices[i].text)
+      expect(actualSurvey.choices[i].localId).toEqual(i)
+      expect(actualSurvey.choices[i].selectedCount).toEqual(0)
+    }
+
+  })
+
+  it('Check getting a survey', async () => {
+    const expectedSurvey = {
+      "question": "hello how are you?",
+      "choices": [
+        {"text": "very good", localId: 0},
+        {"text": "not bad", localId: 1},
+        {"text": "very very bad", localId: 2}
+      ]
+    }
+    const survey = await Survey.create(expectedSurvey, {
+      include: {
+        association: Survey.choices,
+        as: 'choices'
+      }
+    })
+    const actualSurveyWithoutResult = await Survey.getById(survey.id)
+    expect(actualSurveyWithoutResult).toMatchObject(expectedSurvey)
+    const actualSurveyWithResult = await Survey.getById(survey.id, "true")
+    expect(actualSurveyWithResult.choices[0].selectedCount).toBeDefined()
+  })
+
+  it('Check getting all surveys', async () => {
+    const expectedSurveys =
+      [{
+        "question": "hello how are you buddy? ",
+        "choices": [
+          {"text": "very good bud", localId: 0},
+          {"text": "not bad bud", localId: 1},
+          {"text": "very very bad bud", localId: 2}
+        ]
+      },{
+        "question": "hello how are you?",
+        "choices": [
+          {"text": "very good", localId: 0},
+          {"text": "not bad", localId: 1},
+          {"text": "very very bad", localId: 2}
+        ]
+      }]
+    await Survey.bulkCreate(expectedSurveys, {
+      include: {
+        association: Survey.choices,
+        as: 'choices'
+      }
+    })
+    const actualSurveys = await Survey.getAll()
+    console.log(actualSurveys)
+    expect(actualSurveys.totalCount).toEqual(expectedSurveys.length)
+    expect(actualSurveys.edges).toBeDefined()
+    expect(actualSurveys.edges.length).toEqual(expectedSurveys.length)
+    for (let i=0; i < expectedSurveys.length; i++) {
+      expect(actualSurveys.edges[i].node).toMatchObject(expectedSurveys[i])
+    }
   })
 })
 
