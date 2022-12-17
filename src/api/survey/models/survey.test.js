@@ -132,11 +132,12 @@ describe('Check CRUD operation on survey', () => {
     })
     const actualSurveys = await Survey.getAll()
     console.log(actualSurveys)
-    expect(actualSurveys.totalCount).toEqual(expectedSurveys.length)
-    expect(actualSurveys.edges).toBeDefined()
-    expect(actualSurveys.edges.length).toEqual(expectedSurveys.length)
+    console.log(expectedSurveys)
+    expect(actualSurveys.totalItems).toEqual(expectedSurveys.length)
+    expect(actualSurveys.surveys).toBeDefined()
+    expect(actualSurveys.surveys.length).toEqual(expectedSurveys.length)
     for (let i=0; i < expectedSurveys.length; i++) {
-      expect(actualSurveys.edges[i].node).toMatchObject(expectedSurveys[i])
+      expect(actualSurveys.surveys[i]).toMatchObject(expectedSurveys[i])
     }
   })
 })

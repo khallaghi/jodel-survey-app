@@ -5,7 +5,7 @@ import {makePaginate} from "sequelize-cursor-pagination";
 import pull from 'lodash/pull'
 
 class Survey extends Model {
-  static getQueryOptions(where, withResult, others) {
+  static getQueryOptions(where, withResult, limit, offset, distinct) {
 
     let queryOptions = {
       attributes: ['id', 'question', 'createdAt'],
@@ -21,8 +21,12 @@ class Survey extends Model {
     if (withResult !== "true")
       pull(queryOptions.include.attributes, 'selectedCount')
 
-    if (others)
-      Object.assign(queryOptions, others)
+    if (offset)
+      queryOptions.offset = offset
+    if (limit)
+      queryOptions.limit = limit
+    if(distinct)
+      queryOptions.distinct = true
 
     if (where)
       Object.assign(queryOptions, {where})
@@ -52,10 +56,24 @@ class Survey extends Model {
     return choices
   }
 
-  static async getAll(limit, after, before, withResult) {
-    console.log({limit, after, before})
-    let queryOptions = Survey.getQueryOptions(undefined, withResult, {limit, after, before})
-    return await Survey.paginate(queryOptions);
+  static getPagination(page, size) {
+    const limit = size ? +size : undefined
+    const offset = page ? page * limit : undefined
+    return {limit, offset}
+  }
+
+  static getPagingData(data, page, limit) {
+    const {count: totalItems, rows: surveys} = data
+    const currentPage = page ? +page : 1
+    const totalPages = limit ? Math.ceil(totalItems / limit) : 1
+    return {totalItems, surveys, totalPages, currentPage}
+  }
+
+  static async getAll(page, size, withResult) {
+    const {limit, offset} = Survey.getPagination(page, size)
+    let queryOptions = Survey.getQueryOptions(undefined, withResult, limit, offset, true)
+    const results = await Survey.findAndCountAll(queryOptions);
+    return Survey.getPagingData(results, page, limit)
   }
 
   static async getById(id, withResult) {
