@@ -1,4 +1,7 @@
-import { EventEmitter } from 'events'
+import {EventEmitter} from 'events'
+import {closeDb, setupDb} from "../src/services/sequelize";
+import Survey from '../src/api/survey/models/survey'
+import Choice from '../src/api/survey/models/choice'
 
 EventEmitter.defaultMaxListeners = Infinity
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000
@@ -21,13 +24,14 @@ global.parseFloat = parseFloat
 
 
 beforeAll(async () => {
-
+  await setupDb()
 })
 
 afterAll(async () => {
-
+  await closeDb()
 })
 
-afterEach(async () => {
-
-})
+beforeEach(async () => {
+    await Choice.destroy({truncate: true})
+    await Survey.destroy({truncate: true})
+  })

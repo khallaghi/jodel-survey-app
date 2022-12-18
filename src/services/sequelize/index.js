@@ -2,7 +2,7 @@ import {Sequelize} from 'sequelize'
 import {db} from '../../config'
 
 export const orm = new Sequelize(db)
-export const initDb = async () => {
+export const setupDb = async () => {
   await orm.sync({force: true})
     .then(() => {
       console.log("Synced db")

@@ -1,58 +1,6 @@
 import Survey from './survey'
 import Choice from './choice'
-import {closeDb, initDb} from '../../../services/sequelize'
-
-
-const createSurveys = async () => {
-  const expectedSurveys =
-    [{
-      "question": "hello how are you buddy? ",
-      "choices": [
-        {"text": "very good bud", localId: 0},
-        {"text": "not bad bud", localId: 1},
-        {"text": "very very bad bud", localId: 2}
-      ]
-    }, {
-      "question": "hello how are you?",
-      "choices": [
-        {"text": "very good", localId: 0},
-        {"text": "not bad", localId: 1},
-        {"text": "very very bad", localId: 2}
-      ]
-    }, {
-      "question": "hello how are you for the third time?",
-      "choices": [
-        {"text": "very good", localId: 0},
-        {"text": "not bad", localId: 1},
-        {"text": "very very bad", localId: 2}
-      ]
-    }, {
-      "question": "hello how are you fourth time?",
-      "choices": [
-        {"text": "very good", localId: 0},
-        {"text": "not bad", localId: 1},
-        {"text": "very very bad", localId: 2}
-      ]
-    }
-    ]
-  await Survey.bulkCreate(expectedSurveys, {
-    include: {
-      association: Survey.choices,
-      as: 'choices'
-    }
-  })
-
-  return expectedSurveys
-}
-beforeAll(async () => {
-  await initDb()
-})
-
-afterAll(async () => {
-  await Choice.destroy({truncate: true})
-  await Survey.destroy({truncate: true})
-  await closeDb()
-})
+import {initDbWithMultipleData, initDbWithOneData} from "../../../../test/initialization";
 
 describe('Check validity of query options', () => {
   it('Check availability of attributes field', async () => {
@@ -99,23 +47,10 @@ describe('Check validity of query options', () => {
 
 describe('Check CRUD operation on survey', () => {
 
-  beforeEach(async () => {
-    await Choice.destroy({truncate: true})
-    await Survey.destroy({truncate: true})
-  })
-
   it('Check creation of a survey', async () => {
-    const expectedBody = {
-      "question": "hello how are you?",
-      "choices": [
-        {"text": "very good"},
-        {"text": "not bad"},
-        {"text": "very very bad"}
-      ]
-    }
-    const survey = await Survey.createSurvey(expectedBody)
+    const {expectedBody, expectedData} = await initDbWithOneData()
     const actualSurvey = await Survey.findOne({
-      where: {id: survey.id}, include: {model: Choice, as: 'choices', order: [['localId', 'DESC']]}
+      where: {id: expectedData.id}, include: {model: Choice, as: 'choices', order: [['localId', 'DESC']]}
     })
     expect(actualSurvey.question).toEqual(expectedBody.question)
     for (let i = 0; i < expectedBody.choices.length; i++) {
@@ -127,51 +62,38 @@ describe('Check CRUD operation on survey', () => {
   })
 
   it('Check getting a survey', async () => {
-    const expectedSurvey = {
-      "question": "hello how are you?",
-      "choices": [
-        {"text": "very good", localId: 0},
-        {"text": "not bad", localId: 1},
-        {"text": "very very bad", localId: 2}
-      ]
-    }
-    const survey = await Survey.create(expectedSurvey, {
-      include: {
-        association: Survey.choices,
-        as: 'choices'
-      }
-    })
-    const actualSurveyWithoutResult = await Survey.getById(survey.id)
-    expect(actualSurveyWithoutResult).toMatchObject(expectedSurvey)
-    const actualSurveyWithResult = await Survey.getById(survey.id, "true")
+    const {expectedBody, expectedData} = await initDbWithOneData()
+    const actualSurveyWithoutResult = await Survey.getById(expectedData.id)
+    expect(actualSurveyWithoutResult).toMatchObject(expectedBody)
+    const actualSurveyWithResult = await Survey.getById(expectedData.id, "true")
     expect(actualSurveyWithResult.choices[0].selectedCount).toBeDefined()
   })
 
   it('Check getting all surveys', async () => {
-    const expectedSurveys = await createSurveys()
+    const {expectedBody} = await initDbWithMultipleData()
     const actualSurveys = await Survey.getAll()
 
-    expect(actualSurveys.totalCount).toEqual(expectedSurveys.length)
+    expect(actualSurveys.totalCount).toEqual(expectedBody.length)
     expect(actualSurveys.edges).toBeDefined()
-    expect(actualSurveys.edges.length).toEqual(expectedSurveys.length)
+    expect(actualSurveys.edges.length).toEqual(expectedBody.length)
     expect(actualSurveys.pageInfo).toBeDefined()
-    for (let i = 0; i < expectedSurveys.length; i++) {
-      expect(actualSurveys.edges[i].node).toMatchObject(expectedSurveys[i])
+    for (let i = 0; i < expectedBody.length; i++) {
+      expect(actualSurveys.edges[i].node).toMatchObject(expectedBody[i])
     }
   })
 
   it('Check getting list of surveys within page and size', async () => {
-    const expectedSurveys = await createSurveys()
+    const {expectedBody} = await initDbWithMultipleData()
     const limit = 2
     const actualSurveys = await Survey.getAll("false", limit)
-    expect(actualSurveys.totalCount).toEqual(expectedSurveys.length)
+    expect(actualSurveys.totalCount).toEqual(expectedBody.length)
     expect(actualSurveys.edges).toBeDefined()
     expect(actualSurveys.edges.length).toEqual(limit)
     expect(actualSurveys.pageInfo.hasNextPage).toBeTruthy()
   })
 
   it('Check getting list of surveys with after', async () => {
-    await createSurveys()
+    await initDbWithMultipleData()
     const limit = 3
     const surveys = await Survey.getAll("false", limit)
     const after = surveys.edges[1].cursor
@@ -181,7 +103,7 @@ describe('Check CRUD operation on survey', () => {
   })
 
   it('Check getting list of surveys with before', async () => {
-    await createSurveys()
+    await initDbWithMultipleData()
     const limit = 2
     const surveys = await Survey.getAll("false", limit)
     const before = surveys.edges[1].cursor
@@ -191,8 +113,7 @@ describe('Check CRUD operation on survey', () => {
   })
 
   it('Check getting list of surveys within page and size with results', async () => {
-    await createSurveys()
-
+    await initDbWithMultipleData()
 
     const actualSurveysWithResults = await Survey.getAll("true")
     expect(actualSurveysWithResults.edges[0].node.choices[0].selectedCount).toBeDefined()
