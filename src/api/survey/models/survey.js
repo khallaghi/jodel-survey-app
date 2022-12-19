@@ -62,6 +62,18 @@ class Survey extends Model {
     let queryOptions = Survey.getQueryOptions({id: id}, withResult)
     return await Survey.findOne(queryOptions)
   }
+
+  static async deleteSurvey(id) {
+    const survey = await Survey.findOne({
+      where: {
+        id: id
+      }
+    })
+    if (survey) {
+      await Choice.deleteChoicesBySurveyId(id)
+      await survey.destroy()
+    }
+  }
 }
 
 Survey.init({

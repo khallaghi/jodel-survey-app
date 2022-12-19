@@ -14,7 +14,6 @@ export const create = async ({body}, res, next) => {
 
 export const index = async (req, res, next) => {
   let {limit, after, before, withResult} = req.query
-  limit = limit ? parseInt(limit): undefined
   try {
     const surveys = await Survey.getAll(withResult, limit, after, before)
     success(res, surveys)
@@ -24,9 +23,9 @@ export const index = async (req, res, next) => {
   }
 }
 
-export const show = async ({params, query}, res, next) => {
-  const {id} = params
-  const {withResult} = query
+export const show = async (req, res, next) => {
+  const {id} = req.params
+  const {withResult} = req.query
   try {
     const survey = await Survey.getById(id, withResult)
     if (survey != null)
@@ -39,15 +38,21 @@ export const show = async ({params, query}, res, next) => {
   }
 }
 
-export const update = ({body, params}, res, next) =>
-  res.status(200).json(body)
+export const destroy = async (req, res, next) => {
+  const {surveyId} = req.params
 
-export const destroy = ({params}, res, next) =>
-  res.status(204).end()
+  try {
+    await Survey.deleteSurvey(surveyId)
+    success(res)
+  } catch (err) {
+    console.error(err)
+    internalError(res)
+  }
+}
 
-export const answer = async ({params, body}, res, next) => {
-  const {surveyId} = params
-  const {selectedLocalId} = body
+export const answer = async (req, res) => {
+  const {surveyId} = req.params
+  const {selectedLocalId} = req.body
   try {
     if (await Choice.incrementChoice(surveyId, selectedLocalId))
       success(res)

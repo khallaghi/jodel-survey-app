@@ -18,6 +18,14 @@ class Choice extends Model {
       return true
     } else return false
   }
+
+  static async deleteChoicesBySurveyId(surveyId) {
+    await Choice.destroy({
+      where: {
+        surveyId: surveyId
+      }
+    })
+  }
 }
 
 Choice.init({

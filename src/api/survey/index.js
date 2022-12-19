@@ -1,5 +1,12 @@
 import {Router} from 'express'
-import {answer, create, destroy, index, show, update} from './controller'
+import {answer, create, destroy, index, show} from './controller'
+import {
+  createSurveyValidator,
+  deleteSurveyValidator,
+  indexSurveysValidator,
+  selectAnswerValidator,
+  withResultValidator
+} from "./validators";
 
 const router = new Router()
 
@@ -11,8 +18,8 @@ const router = new Router()
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Survey not found.
  */
-router.post('/',
-  create)
+
+router.post('/',createSurveyValidator() , create)
 
 /**
  * @api {get} /survey Retrieve surveys
@@ -23,6 +30,7 @@ router.post('/',
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
 router.get('/',
+  indexSurveysValidator(),
   index)
 
 /**
@@ -33,19 +41,9 @@ router.get('/',
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Survey not found.
  */
-router.get('/:id',
+router.get('/:id', withResultValidator(),
   show)
 
-/**
- * @api {put} /survey/:id Update survey
- * @apiName UpdateSurvey
- * @apiGroup Survey
- * @apiSuccess {Object} survey Survey's data.
- * @apiError {Object} 400 Some parameters may contain invalid values.
- * @apiError 404 Survey not found.
- */
-router.put('/:id',
-  update)
 
 /**
  * @api {delete} /survey/:id Delete survey
@@ -54,7 +52,8 @@ router.put('/:id',
  * @apiSuccess (Success 204) 204 No Content.
  * @apiError 404 Survey not found.
  */
-router.delete('/:id',
+router.delete('/:surveyId',
+  deleteSurveyValidator(),
   destroy)
 
 
@@ -66,5 +65,6 @@ router.delete('/:id',
  * @apiError 404 Survey not found
  */
 router.post('/:surveyId/answer',
+  selectAnswerValidator(),
   answer)
 export default router
