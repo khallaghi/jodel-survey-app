@@ -41,7 +41,7 @@ Choice.init({
     unique: 'within_survey'
   },
   surveyId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     foreignKey: true,
     unique: 'within_survey'
   },

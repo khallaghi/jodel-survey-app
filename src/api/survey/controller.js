@@ -5,7 +5,10 @@ import {success} from '../../services/response'
 export const create = async ({body}, res, next) => {
   try {
     const surveyId = await Survey.createSurvey(body);
-    const msg = {message: `Survey with id: ${surveyId} has been successfully created`}
+    const msg = {
+      message: `Survey with id: ${surveyId} has been successfully created`,
+      surveyId
+    }
     success(res, msg)
   } catch (err) {
     next(err)
@@ -37,7 +40,7 @@ export const destroy = async ({params}, res, next) => {
   const {surveyId} = params
   try {
     await Survey.deleteSurvey(surveyId)
-    const msg = {message: `Survey has been successfully deleted`}
+    const msg = {message: `Survey with Id: ${surveyId} has been successfully deleted`}
     success(res, msg)
   } catch(err) {
     next(err)

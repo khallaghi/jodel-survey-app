@@ -51,12 +51,12 @@ export const indexSurveysValidator = () => {
 export const selectAnswerValidator = () => {
   return [
     body('selectedLocalId', 'Invalid selected local Id').exists().isInt(),
-    param('surveyId', 'Invalid survey Id').exists().isInt()
+    param('surveyId', 'Invalid survey Id').exists().isUUID()
   ]
 }
 
 export const deleteSurveyValidator = () => {
-  return param('surveyId', 'Invalid survey Id').exists().isInt()
+  return param('surveyId', 'Invalid survey Id').exists().isUUID()
 }
 
 export const checkErrors = (req, res, next) => {

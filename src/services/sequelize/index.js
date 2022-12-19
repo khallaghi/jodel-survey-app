@@ -5,10 +5,10 @@ export const orm = new Sequelize(db)
 export const setupDb = async () => {
   await orm.sync({force: true})
     .then(() => {
-      console.log("Synced db")
+      console.log("Database has been synced successfully.")
     })
     .catch((err) => {
-      console.error("Failed to sync db", err)
+      console.error("Failed to sync database.", err)
     })
 }
 
