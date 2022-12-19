@@ -31,7 +31,7 @@ afterAll(async () => {
   await closeDb()
 })
 
-beforeEach(async () => {
-    await Choice.destroy({truncate: true})
-    await Survey.destroy({truncate: true})
-  })
+afterEach(async () => {
+  await Choice.destroy({truncate: true})
+  await Survey.destroy({truncate: true})
+})

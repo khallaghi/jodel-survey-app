@@ -19,5 +19,7 @@ orm.authenticate()
     console.error("Failed to connect to database", err)
   })
 
-await setupDb()
+setImmediate(async () => {
+  await setupDb()
+})
 export default app

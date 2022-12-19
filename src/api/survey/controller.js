@@ -14,9 +14,9 @@ export const create = async ({body}, res, next) => {
 
 export const index = async (req, res, next) => {
   let {limit, after, before, withResult} = req.query
-  limit = parseInt(limit)
+  limit = limit ? parseInt(limit): undefined
   try {
-    const surveys = await Survey.getAll(limit, after, before, withResult)
+    const surveys = await Survey.getAll(withResult, limit, after, before)
     success(res, surveys)
   } catch (error) {
     internalError(res, error)

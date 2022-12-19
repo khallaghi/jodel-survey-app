@@ -54,6 +54,7 @@ class Survey extends Model {
 
   static async getAll(withResult, limit, after, before) {
     let queryOptions = Survey.getQueryOptions(undefined, withResult, {limit, after, before, distinct: true})
+    console.log(queryOptions)
     return await Survey.paginate(queryOptions);
   }
 
