@@ -1,6 +1,7 @@
 import {Router} from 'express'
 import {answer, create, destroy, index, show} from './controller'
 import {
+  checkErrors,
   createSurveyValidator,
   deleteSurveyValidator,
   indexSurveysValidator,
@@ -19,7 +20,7 @@ const router = new Router()
  * @apiError 404 Survey not found.
  */
 
-router.post('/',createSurveyValidator() , create)
+router.post('/',createSurveyValidator() , checkErrors, create)
 
 /**
  * @api {get} /survey Retrieve surveys
@@ -31,6 +32,7 @@ router.post('/',createSurveyValidator() , create)
  */
 router.get('/',
   indexSurveysValidator(),
+  checkErrors,
   index)
 
 /**
@@ -41,7 +43,9 @@ router.get('/',
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Survey not found.
  */
-router.get('/:id', withResultValidator(),
+router.get('/:id',
+  withResultValidator(),
+  checkErrors,
   show)
 
 
@@ -54,6 +58,7 @@ router.get('/:id', withResultValidator(),
  */
 router.delete('/:surveyId',
   deleteSurveyValidator(),
+  checkErrors,
   destroy)
 
 
@@ -66,5 +71,6 @@ router.delete('/:surveyId',
  */
 router.post('/:surveyId/answer',
   selectAnswerValidator(),
+  checkErrors,
   answer)
 export default router

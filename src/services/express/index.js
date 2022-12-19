@@ -7,7 +7,6 @@ import {errorHandler as queryErrorHandler} from 'querymen'
 import {errorHandler as bodyErrorHandler} from 'bodymen'
 import {env} from '../../config'
 import {ValidationError} from 'express-json-validator-middleware'
-import {validationResult} from "express-validator";
 
 export default (apiRoot, routes) => {
   const app = express()
@@ -27,18 +26,15 @@ export default (apiRoot, routes) => {
 
   app.use((err, req, res, next) => {
     if (err instanceof ValidationError) {
-      res.status(400).send(err.validationErrors)
+      let messages = []
+      err.validationErrors.body.forEach((err) => {
+        messages.push(err.message)
+      })
+      res.status(400).send({error: messages})
       next()
     } else {
       next(err)
     }
-  })
-
-  app.use((err, req, res, next) => {
-    const errors = validationResult(req)
-    if (!errors.isEmpty())
-      res.status(400).json({errors: errors.array()})
-    next(err)
   })
 
   return app
