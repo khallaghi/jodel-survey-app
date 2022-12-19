@@ -1,5 +1,6 @@
 import {Validator} from "express-json-validator-middleware"
 import {body, param, query, validationResult} from 'express-validator'
+import {badRequest} from "../../services/response";
 
 export const createSurveyValidator = () => {
   const {validate} = new Validator();
@@ -9,7 +10,9 @@ export const createSurveyValidator = () => {
     required: ['question', 'choices'],
     properties: {
       question: {
-        type: 'string'
+        type: 'string',
+        minLength: 3,
+        maxLength: 255
       },
       choices: {
         type: 'array',
@@ -18,7 +21,9 @@ export const createSurveyValidator = () => {
           required: ['text'],
           properties: {
             text: {
-              type: 'string'
+              type: 'string',
+              minLength: 1,
+              maxLength: 255
             }
           }
         }
@@ -58,7 +63,7 @@ export const checkErrors = (req, res, next) => {
   const error = validationResult(req).formatWith(({msg}) => msg);
   const hasError = !error.isEmpty();
   if (hasError) {
-    res.status(400).json({error: error.array()});
+    badRequest(res, {error: error.array()});
   } else {
     next();
   }

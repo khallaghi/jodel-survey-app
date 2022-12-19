@@ -3,6 +3,7 @@ import {DataTypes, Model} from "sequelize"
 import Choice from "./choice";
 import {makePaginate} from "sequelize-cursor-pagination";
 import pull from 'lodash/pull'
+import NotFoundError from "../../../services/utils/error";
 
 class Survey extends Model {
   static getQueryOptions(where, withResult, other) {
@@ -33,7 +34,7 @@ class Survey extends Model {
   static async createSurvey(body) {
     let {question, choices} = body
     choices = Survey.addOrderIdToChoices(choices)
-    return await Survey.create(
+    const survey = await Survey.create(
       {question, choices}, {
         include: [{
           association: Survey.choices,
@@ -41,6 +42,8 @@ class Survey extends Model {
         }]
       }
     )
+    if (survey)
+      return survey.id
   }
 
   static addOrderIdToChoices(choices) {
@@ -55,12 +58,18 @@ class Survey extends Model {
   static async getAll(withResult, limit, after, before) {
     let queryOptions = Survey.getQueryOptions(undefined, withResult, {limit, after, before, distinct: true})
     console.log(queryOptions)
-    return await Survey.paginate(queryOptions);
+    const surveys = await Survey.paginate(queryOptions)
+    if (surveys)
+      return surveys
+    throw new NotFoundError('Surveys not found')
   }
 
   static async getById(id, withResult) {
     let queryOptions = Survey.getQueryOptions({id: id}, withResult)
-    return await Survey.findOne(queryOptions)
+    const survey = await Survey.findOne(queryOptions)
+    if (survey)
+      return survey
+    throw new NotFoundError('Survey not found')
   }
 
   static async deleteSurvey(id) {
@@ -72,6 +81,9 @@ class Survey extends Model {
     if (survey) {
       await Choice.deleteChoicesBySurveyId(id)
       await survey.destroy()
+      return survey.id
+    } else {
+      throw new NotFoundError('Survey not found')
     }
   }
 }

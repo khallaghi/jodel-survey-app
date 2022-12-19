@@ -1,5 +1,6 @@
 import {orm} from '../../../services/sequelize'
 import {DataTypes, Model, Op} from "sequelize";
+import NotFoundError from "../../../services/utils/error";
 
 
 class Choice extends Model {
@@ -15,8 +16,9 @@ class Choice extends Model {
       })
     if (selectedChoice) {
       await selectedChoice.increment('selectedCount', {by: 1})
-      return true
-    } else return false
+      return selectedChoice.surveyId
+    }
+    throw new NotFoundError('Selected choice not found.')
   }
 
   static async deleteChoicesBySurveyId(surveyId) {
