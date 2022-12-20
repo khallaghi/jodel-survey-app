@@ -46,7 +46,8 @@ Choice.init({
     unique: 'within_survey'
   },
   text: {
-    type: DataTypes.TEXT
+    type: DataTypes.TEXT,
+    allowNull: false
   },
   selectedCount: {
     type: DataTypes.INTEGER,

@@ -96,7 +96,7 @@ Survey.init({
   },
   question: {
     type: DataTypes.TEXT,
-    allowNull: true
+    allowNull: false
   }
 }, {
   sequelize: orm,
