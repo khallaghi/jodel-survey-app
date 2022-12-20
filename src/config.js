@@ -28,27 +28,35 @@ const config = {
     apiRoot: process.env.API_ROOT || '/v1',
     masterKey: requireProcessEnv('MASTER_KEY'),
     jwtExpiryTime: 86400,
-    logLevel: process.env.LOG_LEVEL || 'http'
+    logLevel: process.env.LOG_LEVEL || 'http',
+    databaseUser: process.env.DB_USER || undefined,
+    databasePass: process.env.DB_PASS || undefined,
+    databaseName: process.env.DB_NAME || undefined,
+    resetDb: process.env.RESET_DB || true
   },
   test: {
     db: {
-      dialect: 'sqlite',
-      storage: path.join(__dirname, '../storage/database-test.sqlite')
+      dialect: process.env.DB_DIALECT ||'sqlite',
+      storage: process.env.DB_STORAGE || path.join(__dirname, '../storage/database-test.sqlite'),
+      host: process.env.DB_HOST || undefined
     }
   },
   development: {
     db: {
-      dialect: 'sqlite',
-      storage: path.join(__dirname, '../storage/database.sqlite')
+      dialect: process.env.DB_DIALECT ||'sqlite',
+      storage: process.env.DB_STORAGE || path.join(__dirname, '../storage/database.sqlite'),
+      host: process.env.DB_HOST || undefined
     }
   },
   production: {
     ip: process.env.IP || undefined,
     port: process.env.PORT || 8080,
     apiRoot: process.env.API_ROOT || '/v1',
+    resetDb: process.env.RESET_DB || false,
     db: {
-      dialect: process.env.DB_DIALECT || 'sqlite',
-      storage: process.env.DB_STORAGE || '/storage/database.sqlite'
+      dialect: process.env.DB_DIALECT || undefined,
+      storage: process.env.DB_STORAGE || undefined,
+      host: process.env.DB_HOST || undefined
     }
   }
 }

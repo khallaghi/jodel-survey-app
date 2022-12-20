@@ -10,7 +10,7 @@ const app = express(apiRoot, api)
 
 setImmediate(() => {
   app.listen(port, ip, () => {
-    logger.info('Express server listening on http://%s:%d, in %s mode', ip, port, env)
+    logger.info(`Express server listening on http://${ip}:${port}, in ${env} mode`)
   })
 })
 

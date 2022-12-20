@@ -1,5 +1,5 @@
 import {Sequelize} from 'sequelize'
-import {db} from '../../config'
+import {databaseName, databasePass, databaseUser, db, resetDb} from '../../config'
 import logger from '../winston'
 
 
@@ -8,13 +8,18 @@ const opts = {
 };
 
 Object.assign(opts, db)
-export const orm = new Sequelize(opts)
+export const orm = new Sequelize(databaseName, databaseUser, databasePass, opts)
 orm.authenticate()
   .then(() => logger.info('Connection has been established successfully.'))
   .catch((err) => logger.error('Unable to connect to the database: ', err))
 
 export const setupDb = async () => {
-  await orm.sync({force: true})
+  let options = {force: false}
+  if (resetDb){
+    logger.warn('Resetting Database ... ')
+    options.force = true
+  }
+  await orm.sync(options)
     .then(() => {
       logger.info("Database has been synced successfully.")
     })

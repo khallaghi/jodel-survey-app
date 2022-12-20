@@ -271,8 +271,6 @@ describe('Test response of specific survey', () => {
   })
 })
 
-
-
 describe('Test creating a survey', () => {
   it('POST /survey 200', async () => {
     const {expectedUserBody} = await initDbWithNoData()
@@ -302,6 +300,7 @@ describe('Test answering a survey', () => {
       .send({selectedLocalId: 1})
     expect(status).toBe(200)
   })
+
   it('wrong survey id format', async () => {
     await initDbWithOneData()
     const {status, body} = await request(app())
@@ -320,6 +319,7 @@ describe('Test destroying a survey', () => {
     expect(status).toBe(401)
     expect(body.message).toBeDefined()
   })
+
   it('Destroy survey with authorization', async () => {
     const {expectedSurvey, expectedUser} = await initDbWithOneData()
     const token = getToken(expectedUser.id)
