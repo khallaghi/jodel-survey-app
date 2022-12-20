@@ -67,6 +67,7 @@
     "request-promise": "^4.2.5",
     "sequelize": "^6.27.0",
     "sequelize-cursor-pagination": "^3.4.0",
-    "sqlite3": "^5.1.4"
+    "sqlite3": "^5.1.4",
+    "winston": "^3.8.2"
   }
 }

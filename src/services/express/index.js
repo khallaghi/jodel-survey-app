@@ -10,6 +10,7 @@ import {ValidationError} from 'express-json-validator-middleware'
 import {badRequest, internalError, notFound} from "../response";
 import NotFoundError from "../utils/error";
 import bodyParserErrorHandler from 'express-body-parser-error-handler'
+import logger from '../winston'
 
 export default (apiRoot, routes) => {
   const app = express()
@@ -18,7 +19,7 @@ export default (apiRoot, routes) => {
   if (env === 'production' || env === 'development') {
     app.use(cors())
     app.use(compression())
-    app.use(morgan('dev'))
+    app.use(morgan('combined', {stream: {write: (msg) => logger.http(msg)}}))
   }
 
   app.use(bodyParser.urlencoded({extended: false}))

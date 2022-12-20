@@ -13,6 +13,6 @@ coverage
 cassettes
 storage
 storage/**
-
+*.log
 package-lock.json
 storage/

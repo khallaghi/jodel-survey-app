@@ -1,14 +1,25 @@
 import {Sequelize} from 'sequelize'
 import {db} from '../../config'
+import logger from '../winston'
 
-export const orm = new Sequelize(db)
+
+const opts = {
+  logging: (msg) => logger.info(msg),
+};
+
+Object.assign(opts, db)
+export const orm = new Sequelize(opts)
+orm.authenticate()
+  .then(() => logger.info('Connection has been established successfully.'))
+  .catch((err) => logger.error('Unable to connect to the database: ', err))
+
 export const setupDb = async () => {
   await orm.sync({force: true})
     .then(() => {
-      console.log("Database has been synced successfully.")
+      logger.info("Database has been synced successfully.")
     })
     .catch((err) => {
-      console.error("Failed to sync database.", err)
+      logger.error("Failed to sync database.", err)
     })
 }
 
