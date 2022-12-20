@@ -4,6 +4,8 @@ import api from './api'
 import {setupDb} from './services/sequelize'
 import logger from './services/winston'
 
+logger.info('API ROOT')
+logger.info(apiRoot)
 const app = express(apiRoot, api)
 
 setImmediate(() => {

@@ -1,0 +1,11 @@
+services:
+  jodel-survey-app:
+    build: .
+    ports:
+      - "8096:8080"
+    volumes:
+      - "~/Desktop/storage:/storage"
+    environment:
+      - "IP=0.0.0.0"
+      - "PORT=8080"
+      - "API_ROOT=/v1"

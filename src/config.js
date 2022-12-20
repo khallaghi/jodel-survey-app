@@ -25,10 +25,10 @@ const config = {
     root: path.join(__dirname, '..'),
     port: process.env.PORT || 9000,
     ip: process.env.IP || '0.0.0.0',
-    apiRoot: process.env.API_ROOT || '',
+    apiRoot: process.env.API_ROOT || '/v1',
     masterKey: requireProcessEnv('MASTER_KEY'),
     jwtExpiryTime: 86400,
-    logLevel: 'http'
+    logLevel: process.env.LOG_LEVEL || 'http'
   },
   test: {
     db: {
@@ -45,9 +45,10 @@ const config = {
   production: {
     ip: process.env.IP || undefined,
     port: process.env.PORT || 8080,
+    apiRoot: process.env.API_ROOT || '/v1',
     db: {
       dialect: 'sqlite',
-      storage: path.join(__dirname, '../storage/database.sqlite')
+      storage: '/storage/database.sqlite'
     }
   }
 }
