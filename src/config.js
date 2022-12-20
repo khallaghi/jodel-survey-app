@@ -47,8 +47,8 @@ const config = {
     port: process.env.PORT || 8080,
     apiRoot: process.env.API_ROOT || '/v1',
     db: {
-      dialect: 'sqlite',
-      storage: '/storage/database.sqlite'
+      dialect: process.env.DB_DIALECT || 'sqlite',
+      storage: process.env.DB_STORAGE || '/storage/database.sqlite'
     }
   }
 }
