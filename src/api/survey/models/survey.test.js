@@ -48,13 +48,13 @@ describe('Check validity of query options', () => {
 describe('Check CRUD operation on survey', () => {
 
   it('Check creation of a survey', async () => {
-    const {expectedBody, expectedData} = await initDbWithOneData()
+    const {expectedSurveyBody, expectedSurvey} = await initDbWithOneData()
     const actualSurvey = await Survey.findOne({
-      where: {id: expectedData.id}, include: {model: Choice, as: 'choices', order: [['localId', 'DESC']]}
+      where: {id: expectedSurvey.id}, include: {model: Choice, as: 'choices', order: [['localId', 'DESC']]}
     })
-    expect(actualSurvey.question).toEqual(expectedBody.question)
-    for (let i = 0; i < expectedBody.choices.length; i++) {
-      expect(actualSurvey.choices[i].text).toEqual(expectedBody.choices[i].text)
+    expect(actualSurvey.question).toEqual(expectedSurveyBody.question)
+    for (let i = 0; i < expectedSurveyBody.choices.length; i++) {
+      expect(actualSurvey.choices[i].text).toEqual(expectedSurveyBody.choices[i].text)
       expect(actualSurvey.choices[i].localId).toEqual(i)
       expect(actualSurvey.choices[i].selectedCount).toEqual(0)
     }
@@ -62,31 +62,31 @@ describe('Check CRUD operation on survey', () => {
   })
 
   it('Check getting a survey', async () => {
-    const {expectedBody, expectedData} = await initDbWithOneData()
-    const actualSurveyWithoutResult = await Survey.getById(expectedData.id)
-    expect(actualSurveyWithoutResult).toMatchObject(expectedBody)
-    const actualSurveyWithResult = await Survey.getById(expectedData.id, "true")
+    const {expectedSurveyBody, expectedSurvey} = await initDbWithOneData()
+    const actualSurveyWithoutResult = await Survey.getById(expectedSurvey.id)
+    expect(actualSurveyWithoutResult).toMatchObject(expectedSurveyBody)
+    const actualSurveyWithResult = await Survey.getById(expectedSurvey.id, "true")
     expect(actualSurveyWithResult.choices[0].selectedCount).toBeDefined()
   })
 
   it('Check getting all surveys', async () => {
-    const {expectedBody} = await initDbWithMultipleData()
+    const {expectedSurveyBodies} = await initDbWithMultipleData()
     const actualSurveys = await Survey.getAll()
 
-    expect(actualSurveys.totalCount).toEqual(expectedBody.length)
+    expect(actualSurveys.totalCount).toEqual(expectedSurveyBodies.length)
     expect(actualSurveys.edges).toBeDefined()
-    expect(actualSurveys.edges.length).toEqual(expectedBody.length)
+    expect(actualSurveys.edges.length).toEqual(expectedSurveyBodies.length)
     expect(actualSurveys.pageInfo).toBeDefined()
-    for (let i = 0; i < expectedBody.length; i++) {
-      expect(actualSurveys.edges[i].node).toMatchObject(expectedBody[i])
+    for (let i = 0; i < expectedSurveyBodies.length; i++) {
+      expect(actualSurveys.edges[i].node).toMatchObject(expectedSurveyBodies[i])
     }
   })
 
   it('Check getting list of surveys within page and size', async () => {
-    const {expectedBody} = await initDbWithMultipleData()
+    const {expectedSurveyBodies} = await initDbWithMultipleData()
     const limit = 2
     const actualSurveys = await Survey.getAll("false", limit)
-    expect(actualSurveys.totalCount).toEqual(expectedBody.length)
+    expect(actualSurveys.totalCount).toEqual(expectedSurveyBodies.length)
     expect(actualSurveys.edges).toBeDefined()
     expect(actualSurveys.edges.length).toEqual(limit)
     expect(actualSurveys.pageInfo.hasNextPage).toBeTruthy()

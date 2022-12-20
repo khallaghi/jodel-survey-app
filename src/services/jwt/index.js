@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import {unauthorized} from "../response";
-import {masterKey} from '../../config'
+import {jwtExpiryTime, masterKey} from '../../config'
 
 export const verifyToken = (req, res, next) => {
   const token = req.headers['x-access-token']
@@ -13,4 +13,8 @@ export const verifyToken = (req, res, next) => {
     req.userId = decoded.id
     next()
   })
+}
+
+export const jwtSign = (userId) => {
+  return jwt.sign({id: userId}, masterKey, {expiresIn: jwtExpiryTime})
 }

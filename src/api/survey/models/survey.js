@@ -65,7 +65,6 @@ class Survey extends Model {
 
   static async getAll(userId, withResult, limit, after, before) {
     let queryOptions = Survey.getQueryOptions({userId}, withResult, {limit, after, before, distinct: true})
-    console.log(queryOptions)
     const surveys = await Survey.paginate(queryOptions)
     if (surveys)
       return surveys

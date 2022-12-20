@@ -1,7 +1,6 @@
 import {notFound, success} from '../../services/response/'
 import User from './model'
-import jwt from 'jsonwebtoken'
-import {jwtExpiryTime, masterKey} from '../../config'
+import {jwtSign} from "../../services/jwt";
 
 export const create = async ({body}, res, next) => {
   const {username, password} = body
@@ -21,7 +20,7 @@ export const login = async (req, res, next) => {
     const user = await User.getUser(username, password)
     if (!user)
       return notFound(res, {message: 'User not found'})
-    const token = jwt.sign({id: user.id}, masterKey, {expiresIn: jwtExpiryTime})
+    const token = jwtSign(user.id)
     const result = {
       id: user.id,
       username: user.username,

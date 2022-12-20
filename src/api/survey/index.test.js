@@ -2,14 +2,18 @@ import request from 'supertest'
 import {apiRoot} from '../../config'
 import express from '../../services/express'
 import routes from '.'
-import {initDbWithMultipleData, initDbWithOneData} from "../../../test/initialization"
+import {initDbWithMultipleData, initDbWithNoData, initDbWithOneData} from "../../../test/initialization"
 import {deepReplace} from "../../../test/utils";
+import {jwtSign} from "../../services/jwt";
 
 const app = () => express(apiRoot, routes)
 
+const getToken = (userId) => {
+  return jwtSign(userId)
+}
 describe('Test response of all surveys', () => {
   it('GET /survey 201', async () => {
-    await initDbWithOneData()
+    const {expectedUserBody} = await initDbWithOneData()
     const expectedBody = {
       "totalCount": 1,
       "edges": [
@@ -31,7 +35,10 @@ describe('Test response of all surveys', () => {
                 "localId": 2,
                 "text": "very very bad"
               }
-            ]
+            ],
+            "user": {
+              "username": expectedUserBody.username
+            }
           },
           "cursor": "RANDOM_STRING"
         }
@@ -43,14 +50,15 @@ describe('Test response of all surveys', () => {
         "endCursor": "RANDOM_STRING"
       }
     }
-    let {status, body} = await request(app()).get(`${apiRoot}`)
+    const token = getToken(expectedUserBody.id)
+    let {status, body} = await request(app()).get(`${apiRoot}`).set('x-access-token', token)
     deepReplace(body, ['startCursor', 'endCursor', 'cursor', 'createdAt', 'id'], 'RANDOM_STRING')
     expect(status).toBe(200)
     expect(body).toMatchObject(expectedBody)
   })
 
   it('GET /survey?withResult=true 200', async () => {
-    await initDbWithOneData()
+    const {expectedUserBody} = await initDbWithOneData()
     const expectedBody = {
       "totalCount": 1,
       "edges": [
@@ -75,7 +83,10 @@ describe('Test response of all surveys', () => {
                 "text": "very very bad",
                 "selectedCount": 0
               }
-            ]
+            ],
+            "user": {
+              "username": expectedUserBody.username
+            }
           },
           "cursor": "RANDOM_STRING"
         }
@@ -87,16 +98,17 @@ describe('Test response of all surveys', () => {
         "endCursor": "RANDOM_STRING"
       }
     }
-    let {status, body} = await request(app()).get(`${apiRoot}?withResult=true`)
+    const token = getToken(expectedUserBody.id)
+    let {status, body} = await request(app()).get(`${apiRoot}?withResult=true`).set('x-access-token', token)
     deepReplace(body, ['startCursor', 'endCursor', 'cursor', 'createdAt', 'id'], 'RANDOM_STRING')
     expect(status).toBe(200)
     expect(body).toMatchObject(expectedBody)
   })
 
   it('GET /survey?withResult=true&limit=2 200', async () => {
-    await initDbWithMultipleData()
+    const {expectedUserBodies} = await initDbWithMultipleData()
     const expectedBody = {
-      "totalCount": 4,
+      "totalCount": 2,
       "edges": [
         {
           "node": {
@@ -119,7 +131,10 @@ describe('Test response of all surveys', () => {
                 "text": "very very bad bud 1",
                 "selectedCount": 0
               }
-            ]
+            ],
+            "user": {
+              "username": expectedUserBodies[0].username
+            }
           },
           "cursor": "RANDOM_STRING"
         },
@@ -144,24 +159,29 @@ describe('Test response of all surveys', () => {
                 "text": "very very bad 2",
                 "selectedCount": 0
               }
-            ]
+            ],
+            "user": {
+              "username": expectedUserBodies[0].username
+            }
           },
           "cursor": "RANDOM_STRING"
         }
       ],
       "pageInfo": {
-        "hasNextPage": true,
+        "hasNextPage": false,
         "hasPreviousPage": false,
         "startCursor": "RANDOM_STRING",
         "endCursor": "RANDOM_STRING"
       }
     }
-    let {status, body} = await request(app()).get(`${apiRoot}?withResult=true&limit=2`)
+    const token = getToken(expectedUserBodies[0].id)
+    let {status, body} = await request(app()).get(`${apiRoot}?withResult=true&limit=2`).set('x-access-token', token)
     deepReplace(body, ['startCursor', 'endCursor', 'cursor', 'createdAt', 'id'], 'RANDOM_STRING')
     expect(status).toBe(200)
     expect(body).toMatchObject(expectedBody)
   })
   it('GET /survey?withResult=true&limit=2 200 should be empty', async () => {
+    const {expectedUserBody} = await initDbWithNoData()
     const expectedBody = {
       "totalCount": 0,
       "edges": [],
@@ -172,8 +192,10 @@ describe('Test response of all surveys', () => {
         "endCursor": null
       }
     }
-
-    let {status, body} = await request(app()).get(`${apiRoot}?withResult=true&limit=2`)
+    const token = getToken(expectedUserBody.id)
+    console.log(token)
+    let {status, body} = await request(app()).get(`${apiRoot}?withResult=true&limit=2`).set('x-access-token', token)
+    console.log(body)
     expect(status).toBe(200)
     expect(body).toMatchObject(expectedBody)
   })
@@ -246,6 +268,7 @@ describe('Test response of specific survey', () => {
 
 describe('Test creating a survey', () => {
   it('POST /survey 200', async () => {
+    const {expectedUserBody} = await initDbWithNoData()
     const postBody = {
       "question": "hello how are you?",
       "choices": [
@@ -254,9 +277,11 @@ describe('Test creating a survey', () => {
         {"text": "very very bad"}
       ]
     }
+    const token = getToken(expectedUserBody.id)
     const {status, body} = await request(app())
       .post(`${apiRoot}`)
       .send(postBody)
+      .set('x-access-token', token)
     expect(status).toBe(200)
     expect(typeof body).toEqual('object')
   })
