@@ -27,3 +27,7 @@ export const badRequest = (res, error) => {
   logger.debug(error)
   res.status(400).json(error)
 }
+
+export const unauthorized = (res, error) => {
+  res.status(401).send(error)
+}

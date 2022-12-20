@@ -4,4 +4,15 @@ class NotFoundError extends Error {
   }
 }
 
-export default NotFoundError
+class AlreadyExistError extends Error {
+  constructor(message) {
+    super(message);
+  }
+}
+
+class UnauthorizedError extends Error {
+  constructor(message) {
+    super(message);
+  }
+}
+export {NotFoundError, AlreadyExistError, UnauthorizedError}

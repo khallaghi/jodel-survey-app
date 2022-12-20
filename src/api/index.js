@@ -1,10 +1,11 @@
-import { Router } from 'express'
+import {Router} from 'express'
 import survey from './survey'
+import user from './user'
 
 const router = new Router()
 
 router.use('/survey', survey)
-
+router.use('/user', user)
 /**
  * @apiDefine master Master access only
  * You must pass `access_token` parameter or a Bearer Token authorization header

@@ -1,13 +1,14 @@
 import {Router} from 'express'
 import {answer, create, destroy, index, show} from './controller'
 import {
-  checkErrors,
   createSurveyValidator,
   deleteSurveyValidator,
   indexSurveysValidator,
   selectAnswerValidator,
   withResultValidator
 } from "./validators";
+import {checkErrors} from "../../services/middleware"
+import {verifyToken} from "../../services/jwt"
 
 const router = new Router()
 
@@ -20,7 +21,7 @@ const router = new Router()
  * @apiError 404 Survey not found.
  */
 
-router.post('/',createSurveyValidator() , checkErrors, create)
+router.post('/', verifyToken, createSurveyValidator() , checkErrors, create)
 
 /**
  * @api {get} /survey Retrieve surveys
@@ -31,6 +32,7 @@ router.post('/',createSurveyValidator() , checkErrors, create)
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
 router.get('/',
+  verifyToken,
   indexSurveysValidator(),
   checkErrors,
   index)
@@ -57,6 +59,7 @@ router.get('/:id',
  * @apiError 404 Survey not found.
  */
 router.delete('/:surveyId',
+  verifyToken,
   deleteSurveyValidator(),
   checkErrors,
   destroy)

@@ -1,21 +1,26 @@
 import {orm} from '../../../services/sequelize'
-import {DataTypes, Model} from "sequelize"
+import {DataTypes, Model, Op} from "sequelize"
 import Choice from "./choice";
 import {makePaginate} from "sequelize-cursor-pagination";
 import pull from 'lodash/pull'
-import NotFoundError from "../../../services/utils/error";
+import {NotFoundError} from "../../../services/utils/error";
+import User from "../../user/model";
 
 class Survey extends Model {
   static getQueryOptions(where, withResult, other) {
 
     let queryOptions = {
       attributes: ['id', 'question', 'createdAt'],
-      include: {
+      include: [{
         model: Choice,
         as: 'choices',
         attributes: ['localId', 'text', 'selectedCount'],
         order: [['localId', 'DESC']]
-      },
+      }, {
+        model: User,
+        as: 'user',
+        attributes: ['username']
+      }],
       order: [['createdAt', 'ASC']],
     }
 
@@ -31,14 +36,17 @@ class Survey extends Model {
     return queryOptions
   }
 
-  static async createSurvey(body) {
+  static async createSurvey(body, user) {
     let {question, choices} = body
     choices = Survey.addOrderIdToChoices(choices)
     const survey = await Survey.create(
-      {question, choices}, {
+      {question, choices, userId: user.id}, {
         include: [{
           association: Survey.choices,
           as: 'choices'
+        }, {
+          association: Survey.user,
+          as: 'user'
         }]
       }
     )
@@ -55,8 +63,8 @@ class Survey extends Model {
     return choices
   }
 
-  static async getAll(withResult, limit, after, before) {
-    let queryOptions = Survey.getQueryOptions(undefined, withResult, {limit, after, before, distinct: true})
+  static async getAll(userId, withResult, limit, after, before) {
+    let queryOptions = Survey.getQueryOptions({userId}, withResult, {limit, after, before, distinct: true})
     console.log(queryOptions)
     const surveys = await Survey.paginate(queryOptions)
     if (surveys)
@@ -72,10 +80,13 @@ class Survey extends Model {
     throw new NotFoundError('Survey not found')
   }
 
-  static async deleteSurvey(id) {
+  static async deleteSurvey(id, userId) {
     const survey = await Survey.findOne({
       where: {
-        id: id
+        [Op.and]: [
+          {id},
+          {userId}
+        ]
       }
     })
     if (survey) {
@@ -106,6 +117,9 @@ Survey.init({
 
 Choice.survey = Choice.belongsTo(Survey, {foreignKey: 'surveyId'})
 Survey.choices = Survey.hasMany(Choice, {as: "choices", foreignKey: "surveyId"})
+
+Survey.user = Survey.belongsTo(User, {as: 'user', foreignKey: 'userId'})
+User.surveys = User.hasMany(Survey, {as: 'surveys', foreignKey: 'userId'})
 
 Survey.paginate = makePaginate(Survey)
 export default Survey

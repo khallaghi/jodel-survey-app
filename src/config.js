@@ -27,6 +27,7 @@ const config = {
     ip: process.env.IP || '0.0.0.0',
     apiRoot: process.env.API_ROOT || '',
     masterKey: requireProcessEnv('MASTER_KEY'),
+    jwtExpiryTime: 86400,
     logLevel: 'http'
   },
   test: {

@@ -7,8 +7,8 @@ import {errorHandler as queryErrorHandler} from 'querymen'
 import {errorHandler as bodyErrorHandler} from 'bodymen'
 import {env} from '../../config'
 import {ValidationError} from 'express-json-validator-middleware'
-import {badRequest, internalError, notFound} from "../response";
-import NotFoundError from "../utils/error";
+import {badRequest, internalError, notFound, unauthorized} from "../response";
+import {AlreadyExistError, NotFoundError, UnauthorizedError} from "../utils/error";
 import bodyParserErrorHandler from 'express-body-parser-error-handler'
 import logger from '../winston'
 
@@ -42,8 +42,11 @@ export default (apiRoot, routes) => {
   })
 
   app.use((err, req, res, next) => {
-    if (err instanceof NotFoundError) {
+    if (err instanceof NotFoundError || err instanceof AlreadyExistError) {
       notFound(res, {message: [err.toString()]})
+      next()
+    } else if (err instanceof UnauthorizedError) {
+      unauthorized(res, {message: err.toString()})
       next()
     } else {
       next(err)

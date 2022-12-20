@@ -1,6 +1,5 @@
 import {Validator} from "express-json-validator-middleware"
-import {body, param, query, validationResult} from 'express-validator'
-import {badRequest} from "../../services/response";
+import {body, param, query} from 'express-validator'
 
 export const createSurveyValidator = () => {
   const {validate} = new Validator();
@@ -59,12 +58,4 @@ export const deleteSurveyValidator = () => {
   return param('surveyId', 'Invalid survey Id').exists().isUUID()
 }
 
-export const checkErrors = (req, res, next) => {
-  const error = validationResult(req).formatWith(({msg}) => msg);
-  const hasError = !error.isEmpty();
-  if (hasError) {
-    badRequest(res, {error: error.array()});
-  } else {
-    next();
-  }
-}
+

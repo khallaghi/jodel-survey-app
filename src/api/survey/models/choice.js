@@ -1,6 +1,6 @@
 import {orm} from '../../../services/sequelize'
 import {DataTypes, Model, Op} from "sequelize";
-import NotFoundError from "../../../services/utils/error";
+import {NotFoundError} from "../../../services/utils/error";
 
 
 class Choice extends Model {

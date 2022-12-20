@@ -1,6 +1,6 @@
 import Choice from './choice'
 import {initDbWithOneData} from "../../../../test/initialization";
-import NotFoundError from "../../../services/utils/error";
+import {NotFoundError} from "../../../services/utils/error";
 
 
 it('Test increment a choice', async () => {
