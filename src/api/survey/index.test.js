@@ -202,15 +202,15 @@ describe('Test response of all surveys', () => {
 })
 
 describe('Test response of specific survey', () => {
-  it('/survey/1 400', async () => {
-    let {status} = await request(app()).get(`${apiRoot}/1`)
+  it('/survey/random 400', async () => {
+    let {status} = await request(app()).get(`${apiRoot}/random`)
     expect(status).toBe(404)
   })
 
   it('/survey/1 200', async () => {
-    await initDbWithOneData()
+    const {expectedSurvey} = await initDbWithOneData()
     const expectedBody = {
-      "id": "e39d7548-917b-4605-aba3-1444869d6988",
+      "id": `${expectedSurvey.id}`,
       "question": "hello how are you?",
       "createdAt": "RANDOM_STRING",
       "choices": [
@@ -228,16 +228,16 @@ describe('Test response of specific survey', () => {
         }
       ]
     }
-    let {status, body} = await request(app()).get(`${apiRoot}/e39d7548-917b-4605-aba3-1444869d6988`)
+    let {status, body} = await request(app()).get(`${apiRoot}/${expectedSurvey.id}`)
     deepReplace(body, ['createdAt'], 'RANDOM_STRING')
     expect(status).toBe(200)
     expect(body).toMatchObject(expectedBody)
   })
 
   it('/survey/1?withResult=true 200', async () => {
-    await initDbWithOneData()
+    const {expectedSurvey} = await initDbWithOneData()
     const expectedBody = {
-      "id": "e39d7548-917b-4605-aba3-1444869d6988",
+      "id": `${expectedSurvey.id}`,
       "question": "hello how are you?",
       "createdAt": "RANDOM_STRING",
       "choices": [
@@ -258,12 +258,19 @@ describe('Test response of specific survey', () => {
         }
       ]
     }
-    let {status, body} = await request(app()).get(`${apiRoot}/e39d7548-917b-4605-aba3-1444869d6988?withResult=true`)
+    let {status, body} = await request(app()).get(`${apiRoot}/${expectedSurvey.id}?withResult=true`)
     deepReplace(body, ['createdAt'], 'RANDOM_STRING')
     expect(status).toBe(200)
     expect(body).toMatchObject(expectedBody)
   })
+  it('Access without authorization', async () => {
+    await initDbWithOneData()
+    const {status, body} = await request(app()).get(`${apiRoot}`)
+    expect(status).toBe(401)
+    expect(body.message).toBeDefined()
+  })
 })
+
 
 
 describe('Test creating a survey', () => {
@@ -294,6 +301,43 @@ describe('Test answering a survey', () => {
       .post(`${apiRoot}/e39d7548-917b-4605-aba3-1444869d6988/answer`)
       .send({selectedLocalId: 1})
     expect(status).toBe(200)
+  })
+  it('wrong survey id format', async () => {
+    await initDbWithOneData()
+    const {status, body} = await request(app())
+      .post(`${apiRoot}/e39drandom7548-917b-4605-aba3-1444869d6988/answer`)
+      .send({selectedLocalId: 1})
+    expect(status).toBe(400)
+    expect(body.message).toBeDefined()
+  })
+})
+
+describe('Test destroying a survey', () => {
+  it('Destroy survey without authorization', async () => {
+    const {expectedSurvey} = await initDbWithOneData()
+    const {status, body} = await request(app())
+      .delete(`${apiRoot}/${expectedSurvey.id}`)
+    expect(status).toBe(401)
+    expect(body.message).toBeDefined()
+  })
+  it('Destroy survey with authorization', async () => {
+    const {expectedSurvey, expectedUser} = await initDbWithOneData()
+    const token = getToken(expectedUser.id)
+    const {status, body} = await request(app())
+      .delete(`${apiRoot}/${expectedSurvey.id}`)
+      .set('x-access-token', token)
+    expect(status).toBe(200)
+    expect(body.message).toBeDefined()
+  })
+
+  it('Access with bad uuid', async () => {
+    const {expectedSurvey, expectedUser} = await initDbWithOneData()
+    const token = getToken(expectedUser.id)
+    const {status, body} = await request(app())
+      .delete(`${apiRoot}/${expectedSurvey.id}random`)
+      .set('x-access-token', token)
+    expect(status).toBe(400)
+    expect(body.message).toBeDefined()
   })
 })
 

@@ -55,7 +55,7 @@ export const selectAnswerValidator = () => {
 }
 
 export const deleteSurveyValidator = () => {
-  return param('surveyId', 'Invalid survey Id').exists().isUUID()
+  return param('surveyId', 'Invalid survey Id format').exists().isUUID()
 }
 
 

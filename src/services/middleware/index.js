@@ -5,7 +5,7 @@ export const checkErrors = (req, res, next) => {
   const error = validationResult(req).formatWith(({msg}) => msg);
   const hasError = !error.isEmpty();
   if (hasError) {
-    badRequest(res, {error: error.array()});
+    badRequest(res, {message: error.array()});
   } else {
     next();
   }
