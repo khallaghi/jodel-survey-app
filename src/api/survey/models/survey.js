@@ -25,7 +25,7 @@ class Survey extends Model {
     }
 
     if (withResult !== "true")
-      pull(queryOptions.include.attributes, 'selectedCount')
+      pull(queryOptions.include[0].attributes, 'selectedCount')
 
     if (other)
       Object.assign(queryOptions, other)

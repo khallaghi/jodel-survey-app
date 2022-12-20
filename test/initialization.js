@@ -55,6 +55,22 @@ export const initDbWithMultipleData = async () => {
         {"text": "very very bad 4", localId: 2}
       ],
       "userId": expectedUserBodies[1].id
+    }, {
+      "question": "hello how are you for the fifth time?",
+      "choices": [
+        {"text": "very good 3", localId: 0},
+        {"text": "not bad 3", localId: 1},
+        {"text": "very very bad 3", localId: 2}
+      ],
+      "userId": expectedUserBodies[1].id
+    }, {
+      "question": "hello how are you sixth time?",
+      "choices": [
+        {"text": "very good 4", localId: 0},
+        {"text": "not bad 4", localId: 1},
+        {"text": "very very bad 4", localId: 2}
+      ],
+      "userId": expectedUserBodies[1].id
     }
     ]
   for (let survey of expectedSurveyBodies)
