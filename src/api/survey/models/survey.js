@@ -16,7 +16,7 @@ class Survey extends Model {
         attributes: ['localId', 'text', 'selectedCount'],
         order: [['localId', 'DESC']]
       },
-      order: [['createdAt', 'DESC']],
+      order: [['createdAt', 'ASC']],
     }
 
     if (withResult !== "true")

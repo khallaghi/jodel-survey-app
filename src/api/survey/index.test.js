@@ -15,7 +15,7 @@ describe('Test response of all surveys', () => {
       "edges": [
         {
           "node": {
-            "id": 1,
+            "id": 'RANDOM_STRING',
             "question": "hello how are you?",
             "createdAt": "RANDOM_STRING",
             "choices": [
@@ -44,7 +44,7 @@ describe('Test response of all surveys', () => {
       }
     }
     let {status, body} = await request(app()).get(`${apiRoot}`)
-    deepReplace(body, ['startCursor', 'endCursor', 'cursor', 'createdAt'], 'RANDOM_STRING')
+    deepReplace(body, ['startCursor', 'endCursor', 'cursor', 'createdAt', 'id'], 'RANDOM_STRING')
     expect(status).toBe(200)
     expect(body).toMatchObject(expectedBody)
   })
@@ -56,7 +56,7 @@ describe('Test response of all surveys', () => {
       "edges": [
         {
           "node": {
-            "id": 1,
+            "id": 'RANDOM_STRING',
             "question": "hello how are you?",
             "createdAt": "RANDOM_STRING",
             "choices": [
@@ -88,7 +88,7 @@ describe('Test response of all surveys', () => {
       }
     }
     let {status, body} = await request(app()).get(`${apiRoot}?withResult=true`)
-    deepReplace(body, ['startCursor', 'endCursor', 'cursor', 'createdAt'], 'RANDOM_STRING')
+    deepReplace(body, ['startCursor', 'endCursor', 'cursor', 'createdAt', 'id'], 'RANDOM_STRING')
     expect(status).toBe(200)
     expect(body).toMatchObject(expectedBody)
   })
@@ -100,23 +100,23 @@ describe('Test response of all surveys', () => {
       "edges": [
         {
           "node": {
-            "id": 1,
-            "question": "hello how are you buddy? ",
+            "id": 'RANDOM_STRING',
+            "question": "hello how are you buddy for first time? ",
             "createdAt": "RANDOM_STRING",
             "choices": [
               {
                 "localId": 0,
-                "text": "very good bud",
+                "text": "very good bud 1",
                 "selectedCount": 0
               },
               {
                 "localId": 1,
-                "text": "not bad bud",
+                "text": "not bad bud 1",
                 "selectedCount": 0
               },
               {
                 "localId": 2,
-                "text": "very very bad bud",
+                "text": "very very bad bud 1",
                 "selectedCount": 0
               }
             ]
@@ -125,23 +125,23 @@ describe('Test response of all surveys', () => {
         },
         {
           "node": {
-            "id": 2,
-            "question": "hello how are you?",
+            "id": 'RANDOM_STRING',
+            "question": "hello how are you for second time?",
             "createdAt": "RANDOM_STRING",
             "choices": [
               {
                 "localId": 0,
-                "text": "very good",
+                "text": "very good 2",
                 "selectedCount": 0
               },
               {
                 "localId": 1,
-                "text": "not bad",
+                "text": "not bad 2",
                 "selectedCount": 0
               },
               {
                 "localId": 2,
-                "text": "very very bad",
+                "text": "very very bad 2",
                 "selectedCount": 0
               }
             ]
@@ -157,7 +157,7 @@ describe('Test response of all surveys', () => {
       }
     }
     let {status, body} = await request(app()).get(`${apiRoot}?withResult=true&limit=2`)
-    deepReplace(body, ['startCursor', 'endCursor', 'cursor', 'createdAt'], 'RANDOM_STRING')
+    deepReplace(body, ['startCursor', 'endCursor', 'cursor', 'createdAt', 'id'], 'RANDOM_STRING')
     expect(status).toBe(200)
     expect(body).toMatchObject(expectedBody)
   })
@@ -188,7 +188,7 @@ describe('Test response of specific survey', () => {
   it('/survey/1 200', async () => {
     await initDbWithOneData()
     const expectedBody = {
-      "id": 1,
+      "id": "e39d7548-917b-4605-aba3-1444869d6988",
       "question": "hello how are you?",
       "createdAt": "RANDOM_STRING",
       "choices": [
@@ -206,7 +206,7 @@ describe('Test response of specific survey', () => {
         }
       ]
     }
-    let {status, body} = await request(app()).get(`${apiRoot}/1`)
+    let {status, body} = await request(app()).get(`${apiRoot}/e39d7548-917b-4605-aba3-1444869d6988`)
     deepReplace(body, ['createdAt'], 'RANDOM_STRING')
     expect(status).toBe(200)
     expect(body).toMatchObject(expectedBody)
@@ -215,7 +215,7 @@ describe('Test response of specific survey', () => {
   it('/survey/1?withResult=true 200', async () => {
     await initDbWithOneData()
     const expectedBody = {
-      "id": 1,
+      "id": "e39d7548-917b-4605-aba3-1444869d6988",
       "question": "hello how are you?",
       "createdAt": "RANDOM_STRING",
       "choices": [
@@ -236,7 +236,7 @@ describe('Test response of specific survey', () => {
         }
       ]
     }
-    let {status, body} = await request(app()).get(`${apiRoot}/1?withResult=true`)
+    let {status, body} = await request(app()).get(`${apiRoot}/e39d7548-917b-4605-aba3-1444869d6988?withResult=true`)
     deepReplace(body, ['createdAt'], 'RANDOM_STRING')
     expect(status).toBe(200)
     expect(body).toMatchObject(expectedBody)
@@ -266,7 +266,7 @@ describe('Test answering a survey', () => {
   it('Answer to survey', async () => {
     await initDbWithOneData()
     const {status} = await request(app())
-      .post(`${apiRoot}/1/answer`)
+      .post(`${apiRoot}/e39d7548-917b-4605-aba3-1444869d6988/answer`)
       .send({selectedLocalId: 1})
     expect(status).toBe(200)
   })
